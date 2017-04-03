@@ -1,0 +1,20 @@
+{
+    "name": "valhalla-router",
+    "version": "0.8.0",
+    "description": "This is a strictly structured router module designed for internal use only. It assumes all incoming request are either json or file/blob via GET/PUT/DELETE method.",
+    "keywords": ["router", "mime", "contentType"],
+    "main": "valhalla-router.js",
+    "author": {
+        "name": "JingAn Chen",
+        "email": "lzsoft.cja@gmail.com"
+    },
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/lzsoft/valhalla-router.git"
+    },
+    "engines": {
+        "node": ">=7.6.0",
+        "npm": ">=3.0.0"
+    }
+}
