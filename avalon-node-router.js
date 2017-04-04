@@ -93,7 +93,7 @@ async function processParam() {
         }
     });
 }
-async function end(data, code, message) {
+async function end(code, message, data) {
     res.statusCode = code;
     res.statusMessage = message;
     if (typeof data === 'object') {
