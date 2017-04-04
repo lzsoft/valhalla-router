@@ -1,4 +1,5 @@
 'use strict';
+const url = require('url');
 let req = null;
 let res = null;
 async function start(request, response, environment, map) {
@@ -10,25 +11,23 @@ async function start(request, response, environment, map) {
     res.setHeader('Access-Control-Max-Age', '3600');
     res.setHeader('Access-Control-Allow-Headers', 'Origin, Content-Type, Accept, Authorization');
     if (req.method === "OPTIONS") {
-        res.statusCode = 200;
-        res.end();
+        end(200);
         return true;
     }
-    if (map[req.url] && map[req.url][req.method]) {
+    let u = url.parse(req.url, true);
+    if (map[u.pathname] && map[u.pathname][req.method]) {
         switch (true) {
             case (req.method === 'GET'):
-                await map[req.url](environment, await processParam());
+                await map[u.pathname][req.method](environment, u.query);
                 return true;
             case (req.headers['content-type'] === 'application/json'):
-                await map[req.url](environment, await processJson());
+                await map[u.pathname][req.method](environment, await processJson());
                 return true;
             case (req.headers['content-type'] && req.headers['content-type'] !== 'application/json'):
-                await map[req.url](environment, await processFile());
+                await map[u.pathname][req.method](environment, await processFile());
                 return true;
             default:
-                res.statusCode = 406;
-                res.statusMessage = "You must provide a valid content-type header";
-                res.end();
+                end(406, "You must provide a valid content-type header");
                 return false;
         }
     } else {
@@ -81,22 +80,10 @@ async function processFile() {
         }
     });
 }
-async function processParam() {
-    return new Promise(function(resolve, reject) {
-        try {
-            resolve(req.query);
-        } catch (e) {
-            res.statusCode = 500;
-            res.statusMessage = "Something goes wrong while parsing PARAM";
-            res.end();
-            reject(e);
-        }
-    });
-}
 async function end(code, message, data) {
     res.statusCode = code;
     res.statusMessage = message;
-    if (typeof data === 'object') {
+    if (data && typeof data === 'object') {
         res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify(data));
     } else {
