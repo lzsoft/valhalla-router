@@ -1,16 +1,5 @@
 'use strict';
-let m = {
-    "/object": {
-        "GET": function() {},
-        "PUT": function() {},
-        "DELETE": function() {}
-    },
-    "/file": {
-        "GET": function() {},
-        "PUT": function() {}
-    }
-}
-async function init(req, res, env, map = m) {
+async function init(req, res, environment, map) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'PUT, GET, DELETE, OPTIONS');
     res.setHeader('Access-Control-Allow-Credentials', false);
@@ -24,14 +13,25 @@ async function init(req, res, env, map = m) {
     if (map[req.url] && map[req.url][req.method]) {
         switch (true) {
             case (req.method === 'GET'):
-                await map[req.url](env, await processParam(req, res), end);
-                break;
+                await map[req.url](environment, await processParam(req, res), async function(data, code, message) {
+                    await end(req, res, data, code, message);
+                });
+                return true;
             case (req.headers['content-type'] === 'application/json'):
-                await map[req.url](env, await processJson(req, res), end);
-                break;
+                await map[req.url](environment, await processJson(req, res), async function(data, code, message) {
+                    await end(req, res, data, code, message);
+                });
+                return true;
+            case (req.headers['content-type'] && req.headers['content-type'] !== 'application/json'):
+                await map[req.url](environment, await processFile(req, res), async function(data, code, message) {
+                    await end(req, res, data, code, message);
+                });
+                return true;
             default:
-                await map[req.url](env, await processFile(req, res), end);
-                break;
+                res.statusCode = 406;
+                res.statusMessage = "You must provide a valid content-type header";
+                res.end();
+                return false;
         }
     } else {
         res.statusCode = 404;
@@ -95,6 +95,16 @@ async function processParam(req, res) {
         }
     });
 }
-
-function end(data, code, message) {}
+async function end(req, res, data, code, message) {
+    res.statusCode = code;
+    res.statusMessage = message;
+    if (typeof data === 'object') {
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify(data));
+    } else {
+        res.setHeader('Content-Type', 'text/plain');
+        res.end(data);
+    }
+    return true;
+}
 exports.init = init;
