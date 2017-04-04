@@ -1,5 +1,9 @@
 'use strict';
-async function init(req, res, environment, map) {
+let req = null;
+let res = null;
+async function start(request, response, environment, map) {
+    req = request;
+    res = response;
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'PUT, GET, DELETE, OPTIONS');
     res.setHeader('Access-Control-Allow-Credentials', false);
@@ -13,19 +17,13 @@ async function init(req, res, environment, map) {
     if (map[req.url] && map[req.url][req.method]) {
         switch (true) {
             case (req.method === 'GET'):
-                await map[req.url](environment, await processParam(req, res), async function(data, code, message) {
-                    await end(req, res, data, code, message);
-                });
+                await map[req.url](environment, await processParam());
                 return true;
             case (req.headers['content-type'] === 'application/json'):
-                await map[req.url](environment, await processJson(req, res), async function(data, code, message) {
-                    await end(req, res, data, code, message);
-                });
+                await map[req.url](environment, await processJson());
                 return true;
             case (req.headers['content-type'] && req.headers['content-type'] !== 'application/json'):
-                await map[req.url](environment, await processFile(req, res), async function(data, code, message) {
-                    await end(req, res, data, code, message);
-                });
+                await map[req.url](environment, await processFile());
                 return true;
             default:
                 res.statusCode = 406;
@@ -40,7 +38,7 @@ async function init(req, res, environment, map) {
         return false;
     }
 }
-async function processJson(req, res) {
+async function processJson() {
     return new Promise(function(resolve, reject) {
         try {
             let text = '';
@@ -60,7 +58,7 @@ async function processJson(req, res) {
         }
     });
 }
-async function processFile(req, res) {
+async function processFile() {
     return new Promise(function(resolve, reject) {
         try {
             let buffer = Buffer.alloc(0);
@@ -83,7 +81,7 @@ async function processFile(req, res) {
         }
     });
 }
-async function processParam(req, res) {
+async function processParam() {
     return new Promise(function(resolve, reject) {
         try {
             resolve(req.query);
@@ -95,7 +93,7 @@ async function processParam(req, res) {
         }
     });
 }
-async function end(req, res, data, code, message) {
+async function end(data, code, message) {
     res.statusCode = code;
     res.statusMessage = message;
     if (typeof data === 'object') {
@@ -107,4 +105,7 @@ async function end(req, res, data, code, message) {
     }
     return true;
 }
-exports.init = init;
+exports.start = start;
+exports.end = end;
+exports.req = req;
+exports.res = res;
