@@ -6,15 +6,17 @@ async function start(req, res, environment, map) {
     res.setHeader('Access-Control-Allow-Credentials', false);
     res.setHeader('Access-Control-Max-Age', '3600');
     res.setHeader('Access-Control-Allow-Headers', 'Origin, Content-Type, Accept, Authorization');
-    res.anrEnd = function(data, code, message) {
+    res.anrEnd = function(code, message, data) {
         res.statusCode = code;
         res.statusMessage = message;
         if (data && typeof data === 'object') {
             res.setHeader('Content-Type', 'application/json');
             res.end(JSON.stringify(data));
-        } else {
+        } else if (data) {
             res.setHeader('Content-Type', 'text/plain');
             res.end(data);
+        } else {
+            res.end();
         }
         return true;
     }
