@@ -1,5 +1,6 @@
 'use strict';
 const url = require('url');
+const URL = url.URL;
 const querystring = require('querystring');
 async function start(req, res, environment, map) {
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -26,11 +27,11 @@ async function start(req, res, environment, map) {
         res.anrEnd(200);
         return true;
     }
-    let u = url.parse(req.url, true);
+    let u = new URL(req.url, 'http://127.0.0.1');
     if (map[u.pathname] && map[u.pathname][req.method]) {
         switch (true) {
             case (req.method === 'GET'):
-                await map[u.pathname][req.method](req, res, environment, querystring.parse(u.query));
+                await map[u.pathname][req.method](req, res, environment, querystring.parse(u.search.substr(1)));
                 return true;
             case (req.headers['content-type'] === 'application/json'):
                 await map[u.pathname][req.method](req, res, environment, await processJson(req, res));
