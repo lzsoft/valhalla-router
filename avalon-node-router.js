@@ -1,5 +1,6 @@
 'use strict';
 const url = require('url');
+const querystring = require('querystring');
 async function start(req, res, environment, map) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'PUT, GET, DELETE, OPTIONS');
@@ -29,7 +30,7 @@ async function start(req, res, environment, map) {
     if (map[u.pathname] && map[u.pathname][req.method]) {
         switch (true) {
             case (req.method === 'GET'):
-                await map[u.pathname][req.method](req, res, environment, u.query);
+                await map[u.pathname][req.method](req, res, environment, querystring.parse(u.query));
                 return true;
             case (req.headers['content-type'] === 'application/json'):
                 await map[u.pathname][req.method](req, res, environment, await processJson(req, res));
