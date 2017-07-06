@@ -2,12 +2,12 @@
 const url = require('url');
 const URL = url.URL;
 const querystring = require('querystring');
-async function start(req, res, environment, map) {
+async function start(req, res, environment, map, extraAllowHeaders) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'PUT, GET, DELETE, OPTIONS');
     res.setHeader('Access-Control-Allow-Credentials', false);
     res.setHeader('Access-Control-Max-Age', '3600');
-    res.setHeader('Access-Control-Allow-Headers', 'Origin, Content-Type, Accept, Authorization');
+    res.setHeader('Access-Control-Allow-Headers', 'Origin, Content-Type, Accept, ' + (extraAllowHeaders || ''));
     res.anrEnd = function(code, message, data, contentType) {
         res.statusCode = code;
         res.statusMessage = message;
