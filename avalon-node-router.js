@@ -2,12 +2,12 @@
 const url = require('url');
 const URL = url.URL;
 const querystring = require('querystring');
-async function start(req, res, environment, map, extraAllowHeaders) {
+async function start(req, res, environment, map) {
     res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'PUT, GET, DELETE, OPTIONS');
+    res.setHeader('Access-Control-Allow-Methods', 'PUT, POST, GET, DELETE, OPTIONS');
     res.setHeader('Access-Control-Allow-Credentials', false);
     res.setHeader('Access-Control-Max-Age', '3600');
-    res.setHeader('Access-Control-Allow-Headers', 'Origin, Content-Type, Accept, ' + (extraAllowHeaders || ''));
+    res.setHeader('Access-Control-Allow-Headers', 'Origin, Content-Type, Accept, Authorization');
     res.anrEnd = function(code, message, data, contentType) {
         res.statusCode = code;
         res.statusMessage = message;
@@ -22,7 +22,7 @@ async function start(req, res, environment, map, extraAllowHeaders) {
             res.end(data);
         }
         return true;
-    }
+    };
     if (req.method === "OPTIONS") {
         res.anrEnd(200);
         return true;
