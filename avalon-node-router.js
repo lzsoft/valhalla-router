@@ -1,6 +1,5 @@
 'use strict';
 const url = require('url');
-const URL = url.URL;
 const querystring = require('querystring');
 async function start(req, res, environment, map) {
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -8,18 +7,18 @@ async function start(req, res, environment, map) {
     res.setHeader('Access-Control-Allow-Credentials', false);
     res.setHeader('Access-Control-Max-Age', '3600');
     res.setHeader('Access-Control-Allow-Headers', 'Origin, Content-Type, Accept, Authorization');
-    res.anrEnd = function(code, message, data, contentType) {
-        res.statusCode = code;
-        res.statusMessage = message;
-        if (data && typeof data === 'object') {
-            res.setHeader('Content-Type', contentType || 'application/json');
-            res.end(JSON.stringify(data));
-        } else if (data) {
-            res.setHeader('Content-Type', contentType || 'text/plain');
-            res.end(data);
+    res.anrEnd = function (statusCode, statusMessage, body, headers) {
+        res.statusCode = statusCode;
+        res.statusMessage = statusMessage;
+        if (body && typeof body === 'object') {
+            res.setHeader('Content-Type', headers['content-type'] || headers['Content-Type'] || 'application/json');
+            res.end(JSON.stringify(body));
+        } else if (body) {
+            res.setHeader('Content-Type', headers['content-type'] || headers['Content-Type'] || 'text/plain');
+            res.end(body);
         } else {
-            res.setHeader('Content-Type', contentType || 'application/octet-stream');
-            res.end(data);
+            res.setHeader('Content-Type', headers['content-type'] || headers['Content-Type'] || 'application/octet-stream');
+            res.end(body);
         }
         return true;
     };
@@ -27,13 +26,13 @@ async function start(req, res, environment, map) {
         res.anrEnd(200);
         return true;
     }
-    let u = new URL(req.url, 'http://127.0.0.1');
+    let u = new url.URL(req.url, 'http://127.0.0.1');
     if (map[u.pathname] && map[u.pathname][req.method]) {
         switch (true) {
             case (req.method === 'GET'):
                 await map[u.pathname][req.method](req, res, environment, querystring.parse(u.search.substr(1)));
                 return true;
-            case (req.headers['content-type'] === 'application/json'):
+            case (req.headers['content-type'] && req.headers['content-type'] === 'application/json'):
                 await map[u.pathname][req.method](req, res, environment, await processJson(req, res));
                 return true;
             case (req.headers['content-type'] && req.headers['content-type'] !== 'application/json'):
@@ -49,7 +48,7 @@ async function start(req, res, environment, map) {
     }
 }
 async function processJson(req, res) {
-    return new Promise(function(resolve, reject) {
+    return new Promise(function (resolve, reject) {
         try {
             let text = '';
             let json = {};
@@ -69,7 +68,7 @@ async function processJson(req, res) {
     });
 }
 async function processFile(req, res) {
-    return new Promise(function(resolve, reject) {
+    return new Promise(function (resolve, reject) {
         try {
             let buffer = Buffer.alloc(0);
             req.on('data', (chunk) => {
