@@ -11,13 +11,13 @@ async function start(req, res, environment, map) {
         res.statusCode = statusCode;
         res.statusMessage = statusMessage;
         if (body && typeof body === 'object') {
-            res.setHeader('Content-Type', headers['content-type'] || headers['Content-Type'] || 'application/json');
+            res.setHeader('Content-Type', headers ? headers['content-type'] || headers['Content-Type'] || 'application/json' : 'application/json');
             res.end(JSON.stringify(body));
         } else if (body) {
-            res.setHeader('Content-Type', headers['content-type'] || headers['Content-Type'] || 'text/plain');
+            res.setHeader('Content-Type', headers ? headers['content-type'] || headers['Content-Type'] || 'text/plain' : 'text/plain');
             res.end(body);
         } else {
-            res.setHeader('Content-Type', headers['content-type'] || headers['Content-Type'] || 'application/octet-stream');
+            res.setHeader('Content-Type', headers ? headers['content-type'] || headers['Content-Type'] || 'application/octet-stream' : 'application/octet-stream');
             res.end(body);
         }
         return true;
