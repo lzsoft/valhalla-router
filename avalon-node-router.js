@@ -6,7 +6,7 @@ async function start(req, res, environment, map) {
     res.setHeader('Access-Control-Allow-Methods', 'PUT, POST, GET, DELETE, OPTIONS');
     res.setHeader('Access-Control-Allow-Credentials', false);
     res.setHeader('Access-Control-Max-Age', '3600');
-    res.setHeader('Access-Control-Allow-Headers', 'Origin, Content-Type, Accept, Authorization');
+    res.setHeader('Access-Control-Allow-Headers', 'Origin, Content-Type, Accept, Authorization, Application-Key, Application-Name');
     res.anrEnd = function (statusCode, statusMessage, body, headers) {
         res.statusCode = statusCode;
         res.statusMessage = statusMessage;
