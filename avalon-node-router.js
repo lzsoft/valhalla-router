@@ -1,12 +1,17 @@
 'use strict';
 const url = require('url');
 const querystring = require('querystring');
-async function start(req, res, environment, map) {
+async function start(req, res, environment, map, headers) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'PUT, POST, GET, DELETE, OPTIONS');
     res.setHeader('Access-Control-Allow-Credentials', false);
     res.setHeader('Access-Control-Max-Age', '3600');
     res.setHeader('Access-Control-Allow-Headers', 'Origin, Content-Type, Accept, Authorization, Application-Key, Application-Name');
+    //
+    for (const h in headers) {
+        res.setHeader(h, headers[h]);
+    }
+    //
     res.anrEnd = function (statusCode, statusMessage, body, headers) {
         res.statusCode = statusCode;
         res.statusMessage = statusMessage;
