@@ -10,18 +10,22 @@ exports.start = async function(req, res, environment, map, headers) {
 		res.setHeader(h, headers[h]);
 	}
 	//
-	res.anrEnd = function(statusCode, statusMessage, body, headers) {
+	res.anrEnd = function(statusCode, statusMessage, body = {}, headers) {
 		res.statusCode = statusCode;
 		res.statusMessage = statusMessage;
-		if (body && typeof body === 'object') {
-			res.setHeader('Content-Type', headers ? headers['content-type'] || headers['Content-Type'] || 'application/json' : 'application/json');
-			res.end(JSON.stringify(body));
-		} else if (body) {
-			res.setHeader('Content-Type', headers ? headers['content-type'] || headers['Content-Type'] || 'text/plain' : 'text/plain');
-			res.end(body);
-		} else {
-			res.setHeader('Content-Type', headers ? headers['content-type'] || headers['Content-Type'] || 'application/octet-stream' : 'application/octet-stream');
-			res.end(body);
+		switch (typeof body) {
+			case "object":
+				res.setHeader('Content-Type', headers ? headers['content-type'] || headers['Content-Type'] || 'application/json' : 'application/json');
+				res.end(JSON.stringify(body));
+				break;
+			case "string":
+				res.setHeader('Content-Type', headers ? headers['content-type'] || headers['Content-Type'] || 'text/plain' : 'text/plain');
+				res.end(body);
+				break;
+			default:
+				res.setHeader('Content-Type', headers ? headers['content-type'] || headers['Content-Type'] || 'application/octet-stream' : 'application/octet-stream');
+				res.end(body);
+				break;
 		}
 		return true;
 	};
