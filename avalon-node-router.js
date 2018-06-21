@@ -55,7 +55,7 @@ exports.start = async function(req, res, environment, map, headers) {
 				await map[p][req.method](req, res, environment, await processFile(req, res));
 				return true;
 			default:
-				res.anrEnd(406, "You must provide a valid content-type header");
+				res.anrEnd(400, "You must provide a valid content-type header");
 				return false;
 		}
 	} else {
@@ -72,11 +72,18 @@ async function processJson(req, res) {
 				text += chunk;
 			});
 			req.on('end', () => {
-				json = JSON.parse(text) || {};
-				resolve(json);
+				try {
+					json = JSON.parse(text) || {};
+					resolve(json);
+				} catch (e) {
+					res.statusCode = 400;
+					res.statusMessage = "The incoming JSON string is invalid";
+					res.end();
+					reject(e);
+				}
 			});
 		} catch (e) {
-			res.statusCode = 406;
+			res.statusCode = 400;
 			res.statusMessage = "The incoming JSON string is invalid";
 			res.end();
 			reject(e);
