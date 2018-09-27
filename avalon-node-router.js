@@ -1,7 +1,7 @@
 'use strict';
 const url = require('url');
 const querystring = require('querystring');
-exports.start = async function(req, res, environment, map, headers) {
+exports.start = async function(req, res, map, headers) {
 	res.setHeader('Access-Control-Allow-Methods', 'GET, OPTION, POST, PUT, DELETE, PATCH');
 	res.setHeader('Access-Control-Max-Age', '3600');
 	res.setHeader('Access-Control-Allow-Headers', 'Origin, Content-Type, Accept, Authorization');
@@ -45,13 +45,13 @@ exports.start = async function(req, res, environment, map, headers) {
 	if (p && map[p][req.method]) {
 		switch (true) {
 			case (req.method === 'GET'):
-				await map[p][req.method](req, res, environment, querystring.parse(u.search.substr(1)));
+				await map[p][req.method](req, res, querystring.parse(u.search.substr(1)));
 				return true;
 			case (req.headers['content-type'] && req.headers['content-type'] === 'application/json'):
-				await map[p][req.method](req, res, environment, await processJson(req, res));
+				await map[p][req.method](req, res, await processJson(req, res));
 				return true;
 			case (req.headers['content-type'] && req.headers['content-type'] !== 'application/json'):
-				await map[p][req.method](req, res, environment, await processFile(req, res));
+				await map[p][req.method](req, res, await processFile(req, res));
 				return true;
 			default:
 				res.anrEnd(400, "You must provide a valid content-type header");
