@@ -1,5 +1,6 @@
-'use strict';
-const url = require('url');
+const {
+	URL
+} = require('url');
 const querystring = require('querystring');
 exports.start = async function(req, res, map, headers) {
 	res.setHeader('Access-Control-Allow-Methods', 'GET, OPTION, POST, PUT, DELETE, PATCH');
@@ -32,7 +33,7 @@ exports.start = async function(req, res, map, headers) {
 		res.anrEnd(200);
 		return true;
 	}
-	let u = new url.URL(req.url, 'http://127.0.0.1');
+	let u = new URL(req.url, 'http://127.0.0.1');
 	let p = null;
 	for (const m in map) {
 		if (u.pathname.indexOf(m) === 0) {
@@ -58,7 +59,12 @@ exports.start = async function(req, res, map, headers) {
 				return false;
 		}
 	} else {
-		res.anrEnd(404, "Service does not exist, request " + req.url + " req " + JSON.parse(req));
+		res.anrEnd(404, {
+			"req.url": req.url,
+			"req.method": req.method,
+			"req.headers": req.headers,
+			"map": map
+		});
 		return false;
 	}
 };
