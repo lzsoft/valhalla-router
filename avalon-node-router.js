@@ -59,12 +59,7 @@ exports.start = async function(req, res, map, headers) {
 				return false;
 		}
 	} else {
-		res.anrEnd(404, {
-			"req.url": req.url,
-			"req.method": req.method,
-			"req.headers": req.headers,
-			"map": map
-		});
+		res.anrEnd(404, 'fdsa');
 		return false;
 	}
 };
