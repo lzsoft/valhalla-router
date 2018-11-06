@@ -58,7 +58,7 @@ exports.start = async function(req, res, map, headers) {
 				return false;
 		}
 	} else {
-		res.anrEnd(404, "Service does not exist, requesting " + req.url);
+		res.anrEnd(404, "Service does not exist, request " + req.url + " req " + JSON.parse(req));
 		return false;
 	}
 };
