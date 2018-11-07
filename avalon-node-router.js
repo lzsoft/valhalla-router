@@ -52,7 +52,7 @@ exports.start = async function(req, res, map, headers) {
 				await map[p][req.method](req, res, await processJson(req, res));
 				return true;
 			case (req.headers['content-type'] && req.headers['content-type'] !== 'application/json'):
-				await map[p][req.method](req, res, await processFile(req, res));
+				await map[p][req.method](req, res);
 				return true;
 			default:
 				res.anrEnd(400, "You must provide a valid content-type header");
@@ -85,29 +85,6 @@ async function processJson(req, res) {
 		} catch (e) {
 			res.statusCode = 400;
 			res.statusMessage = "The incoming JSON string is invalid";
-			res.end();
-			reject(e);
-		}
-	});
-}
-async function processFile(req, res) {
-	return new Promise(function(resolve, reject) {
-		try {
-			let buffer = Buffer.alloc(0);
-			req.on('data', (chunk) => {
-				buffer = Buffer.concat([buffer, chunk]);
-			});
-			req.on('end', () => {
-				let file = {
-					buffer: buffer,
-					contentType: req.headers['content-type'],
-					contentCategory: req.headers['content-type'].split('/')[0]
-				};
-				resolve(file);
-			});
-		} catch (e) {
-			res.statusCode = 500;
-			res.statusMessage = "Something goes wrong while parsing FILE";
 			res.end();
 			reject(e);
 		}
