@@ -2,7 +2,7 @@ const {
 	URL
 } = require('url');
 const querystring = require('querystring');
-exports.start = async function(req, res, routerMap, responseHeaders) {
+exports.start = async function (req, res, routerMap, responseHeaders) {
 	// Default response headers
 	res.setHeader('Access-Control-Allow-Methods', 'GET, OPTION, POST, PUT, DELETE, PATCH');
 	res.setHeader('Access-Control-Max-Age', '3600');
@@ -12,12 +12,12 @@ exports.start = async function(req, res, routerMap, responseHeaders) {
 		res.setHeader(h, responseHeaders[h]);
 	}
 	//
-	res.anrEnd = function(statusCode, body = {}, headers) {
+	res.anrEnd = function (statusCode, body, headers) {
 		res.statusCode = statusCode;
 		switch (typeof body) {
 			case "object":
 				res.setHeader('Content-Type', headers ? headers['content-type'] || headers['Content-Type'] || 'application/json' : 'application/json');
-				res.end(JSON.stringify(body));
+				res.end(JSON.stringify(body || {}));
 				break;
 			case "string":
 				res.setHeader('Content-Type', headers ? headers['content-type'] || headers['Content-Type'] || 'text/plain' : 'text/plain');
@@ -68,7 +68,7 @@ exports.start = async function(req, res, routerMap, responseHeaders) {
 	}
 };
 async function processJson(req) {
-	return new Promise(function(resolve, reject) {
+	return new Promise(function (resolve, reject) {
 		let text = '';
 		let json = {};
 		req.on('data', chunk => {
