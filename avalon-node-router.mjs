@@ -1,6 +1,18 @@
 import assert from "assert";
 import querystring from "querystring";
 
+Array.prototype.deepEqual = function (target) {
+    if (this.length !== target.length) {
+        return false;
+    }
+    for (let i = 0; i < this.length; i++) {
+        if (this[i] !== target[i]) {
+            return false;
+        }
+    }
+    return true;
+};
+
 export default async function (req, res, map, options = {
     responseHeaders: {
         'Access-Control-Allow-Methods': 'GET, OPTION, POST, PUT, DELETE',
@@ -15,11 +27,11 @@ export default async function (req, res, map, options = {
     assert.ok(options, new Error("Options object must be provided as the 3rd param"));
     assert.ok(map, new Error("Router map must be configured in options object"));
 
-    for (const h in responseHeaders) {
-        res.setHeader(h, responseHeaders[h]);
+    for (const h in options.responseHeaders) {
+        res.setHeader(h, options.responseHeaders[h]);
     }
 
-    if (req.method === "OPTIONS" && alwaysApproveOptionsRequest) {
+    if (req.method === "OPTIONS" && options.alwaysApproveOptionsRequest) {
         end(null, 200);
         return true;
     }
@@ -27,23 +39,22 @@ export default async function (req, res, map, options = {
     const url = new URL(req.url, 'http://127.0.0.1');
 
     const pathnameArrayFromRequest = url.pathname.split("/");
-    const pathnameArrayFromRequestString = JSON.stringify(pathnameArrayFromRequest);
 
     for (const pathnameDefinition in map) {
         const pathnameArrayFromDefinition = pathnameDefinition.split("/");
-        if (JSON.stringify(pathnameArrayFromDefinition) === pathnameArrayFromRequestString && map[pathnameDefinition][req.method]) {
+        if (pathnameArrayFromRequest.deepEqual(pathnameArrayFromDefinition) && map[pathnameDefinition][req.method]) {
             switch (true) {
                 case (req.method === "GET"):
                     await map[pathnameDefinition][req.method](req, res, end, querystring.parse(url.search.substr(1)));
                     return true;
                 case (req.headers['content-type'] === "application/json"):
-                    await routerMap[p][req.method](req, res, end, await processJson(req));
+                    await map[pathnameDefinition][req.method](req, res, end, await processJson(req));
                     return true;
                 case (req.headers['content-type'] === "text/plain"):
-                    await routerMap[p][req.method](req, res, end, await processText(req));
+                    await map[pathnameDefinition][req.method](req, res, end, await processText(req));
                     return true;
                 default:
-                    await routerMap[p][req.method](req, res, end);
+                    await map[pathnameDefinition][req.method](req, res, end);
                     return true;
             }
         }
@@ -51,24 +62,24 @@ export default async function (req, res, map, options = {
 
     end(null, 404);
 
-    function end(body, statusCode = 200, statusMessage = undefined) {
+    function end(data, statusCode = 200, statusMessage = undefined) {
         res.statusCode = statusCode;
         res.statusMessage = statusMessage;
         switch (true) {
-            case body === null:
-            case body === undefined:
+            case data === null:
+            case data === undefined:
                 res.setHeader("Content-Type", "text/plain");
                 res.end();
                 break;
-            case typeof body === "object":
+            case typeof data === "object":
                 res.setHeader("Content-Type", "application/json");
-                res.end(JSON.stringify(body));
+                res.end(JSON.stringify(data));
                 break;
             default:
-            case typeof body === "string":
-            case typeof body === "number":
+            case typeof data === "string":
+            case typeof data === "number":
                 res.setHeader("Content-Type", "text/plain");
-                res.end(body);
+                res.end(data);
                 break;
         }
         return true;
