@@ -79,7 +79,7 @@ export default async function (req, res, map, options = {
             case typeof data === "string":
             case typeof data === "number":
                 res.setHeader("Content-Type", "text/plain");
-                res.end(data);
+                res.end(data.toString());
                 break;
         }
         return true;
