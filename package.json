@@ -1,20 +1,24 @@
 {
-	"name": "avalon-node-router",
-	"version": "1.3.0",
-	"description": "This is a strictly structured router module designed for internal use only",
-	"keywords": ["router", "mime-type", "content-type"],
-	"main": "avalon-node-router.js",
-	"author": {
-		"name": "JingAn Chen",
-		"email": "lzsoft.cja@gmail.com"
-	},
-	"license": "MIT",
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/tingting-io/avalon-node-router.git"
-	},
-	"engines": {
-		"node": ">=7.6.0",
-		"npm": ">=3.0.0"
-	}
+    "name": "avalon-node-router",
+    "version": "1.3.0",
+    "description": "This is a strictly structured router module designed for internal use only",
+    "keywords": [
+        "router",
+        "mime-type",
+        "content-type"
+    ],
+    "main": "avalon-node-router.js",
+    "author": {
+        "name": "JingAn Chen",
+        "email": "lzsoft.cja@gmail.com"
+    },
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/tingting-io/avalon-node-router.git"
+    },
+    "type": "module",
+    "devDependencies": {
+        "nodemon": "^2.0.4"
+    }
 }
