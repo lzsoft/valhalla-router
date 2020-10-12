@@ -13,25 +13,24 @@ Array.prototype.deepEqual = function (target) {
     return true;
 };
 
-export default async function (req, res, map, options = {
-    responseHeaders: {
+export default async function (req, res, map, {
+    responseHeaders = {
         'Access-Control-Allow-Methods': 'GET, OPTION, POST, PUT, DELETE',
         'Access-Control-Max-Age': '3600',
         'Access-Control-Allow-Headers': 'Origin, Referer, Content-Type, Accept'
     },
-    alwaysApproveOptionsRequest: true
+    alwaysApproveOptionsRequest = true
 }) {
 
     assert.ok(req, new Error("Req method must be provided as the 1st param"));
     assert.ok(res, new Error("Res method must be provided as the 2nd param"));
-    assert.ok(options, new Error("Options object must be provided as the 3rd param"));
     assert.ok(map, new Error("Router map must be configured in options object"));
 
-    for (const h in options.responseHeaders) {
-        res.setHeader(h, options.responseHeaders[h]);
+    for (const h in responseHeaders) {
+        res.setHeader(h, responseHeaders[h]);
     }
 
-    if (req.method === "OPTIONS" && options.alwaysApproveOptionsRequest) {
+    if (req.method === "OPTIONS" && alwaysApproveOptionsRequest) {
         end(null, 200);
         return true;
     }
