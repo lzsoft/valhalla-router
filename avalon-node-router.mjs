@@ -24,7 +24,7 @@ export default async function (req, res, map, {
 
     assert.ok(req, new Error("Req method must be provided as the 1st param"));
     assert.ok(res, new Error("Res method must be provided as the 2nd param"));
-    assert.ok(map, new Error("Router map must be configured in options object"));
+    assert.ok(map, new Error("Router map must be provided as the 3rd param"));
 
     for (const h in responseHeaders) {
         res.setHeader(h, responseHeaders[h]);
@@ -92,10 +92,14 @@ async function processJson(req) {
         req.on('data', chunk => {
             text += chunk;
         }).on('end', () => {
-            json = JSON.parse(text);
-            resolve(json);
+            try {
+                json = JSON.parse(text);
+                resolve(json);
+            } catch (e) {
+                reject(new Error("The request claims to be application/json but the body is not a valid JSON. Body: " + text));
+            }
         }).on('error', e => {
-            reject(new Error('Error while processing JSON in request body'));
+            reject(e);
         });
     });
 }
@@ -108,7 +112,7 @@ async function processText(req) {
         }).on('end', () => {
             resolve(text);
         }).on('error', e => {
-            reject(new Error('Error while processing TEXT in request body'));
+            reject(e);
         });
     });
 }
